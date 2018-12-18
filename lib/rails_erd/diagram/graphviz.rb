@@ -86,11 +86,6 @@ module RailsERD
         labeldistance: 1.8,
       }
 
-      # Default cluster attributes.
-      CLUSTER_ATTRIBUTES = {
-        margin: "10,10"
-      }
-
       module Simple
         def entity_style(entity, attributes)
           {}.tap do |options|
@@ -105,6 +100,14 @@ module RailsERD
             # Closed arrows for to/from many.
             options[:arrowhead] = relationship.to_many? ? "normal" : "none"
             options[:arrowtail] = relationship.many_to? ? "normal" : "none"
+            if relationship.indirect?
+              options[:arrowhead] = relationship.to_many? ? "normal" : "normal"
+              options[:arrowtail] = relationship.many_to? ? "normal" : "normal"
+              options[:color] = :darkolivegreen
+            
+            else
+              options[:color] = random_color
+            end
           end
         end
 
@@ -166,6 +169,11 @@ module RailsERD
             options[:arrowhead] = relationship.to_many? ? "vee" : "none"
             options[:arrowtail] = relationship.many_to? ? "vee" : "none"
 
+            if relationship.indirect?
+              options[:arrowhead] = relationship.to_many? ? "vee" : "vee"
+              options[:arrowtail] = relationship.many_to? ? "vee" : "vee"
+            end
+
             ranges = [relationship.cardinality.destination_range, relationship.cardinality.source_range].map do |range|
               if range.min == range.max
                 "#{range.min}"
@@ -221,10 +229,8 @@ module RailsERD
       each_entity do |entity, attributes|
         if options[:cluster] && entity.namespace
           cluster_name = "cluster_#{entity.namespace}"
-          cluster_options = CLUSTER_ATTRIBUTES.merge(label: entity.namespace)
           cluster = graph.get_graph(cluster_name) ||
-                    graph.add_graph(cluster_name, cluster_options)
-
+                    graph.add_graph(cluster_name, label: entity.namespace)
           draw_cluster_node cluster, entity.name, entity_options(entity, attributes)
         else
           draw_node entity.name, entity_options(entity, attributes)
@@ -311,6 +317,11 @@ module RailsERD
 
       def read_template(type)
         ERB.new(File.read(File.expand_path("templates/#{NODE_LABEL_TEMPLATES[type]}", File.dirname(__FILE__))), nil, "<>")
+      end
+      def random_color
+        t = ["magenta", "maroon", "mediumaquamarine", "mediumblue", "olivedrab", "red", "saddlebrown", "violet", "firebrick", "darkorange", "navy", "plum"]
+
+        t[rand(1000) % t.size] 
       end
     end
   end
