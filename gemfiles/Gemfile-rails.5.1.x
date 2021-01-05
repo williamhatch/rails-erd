@@ -2,16 +2,15 @@ source "http://rubygems.org"
 
 gemspec :path => ".."
 
-gem "activerecord", "~> 4.1.0"
+gem "activerecord", "~> 5.1.0"
 
 group :development do
-  gem 'minitest', '5.10.1'
   gem 'mocha'
   gem "rake"
   gem "yard"
 
   platforms :ruby do
-    gem "sqlite3"
+    gem "sqlite3", '~> 1.3.13'
     gem "redcarpet"
   end
 

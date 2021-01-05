@@ -19,7 +19,13 @@ namespace :erd do
       when "true", "yes" then true
       when "false", "no" then false
       when /,/ then ENV[option].split(/\s*,\s*/)
-      else ENV[option].to_sym
+      when /^\d+$/ then ENV[option].to_i
+      else
+        if option == 'only'
+          [ENV[option]]
+        else
+          ENV[option].to_sym
+        end
       end
     end
   end

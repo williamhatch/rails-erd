@@ -316,7 +316,12 @@ module RailsERD
       end
 
       def read_template(type)
-        ERB.new(File.read(File.expand_path("templates/#{NODE_LABEL_TEMPLATES[type]}", File.dirname(__FILE__))), nil, "<>")
+        template_text = File.read(File.expand_path("templates/#{NODE_LABEL_TEMPLATES[type]}", File.dirname(__FILE__)))
+        if ERB.instance_method(:initialize).parameters.assoc(:key) # Ruby 2.6+
+          ERB.new(template_text, trim_mode: "<>")
+        else
+          ERB.new(template_text, nil, "<>")
+        end
       end
       def random_color
         t = ["magenta", "maroon", "mediumaquamarine", "mediumblue", "olivedrab", "red", "saddlebrown", "violet", "firebrick", "darkorange", "navy", "plum"]
